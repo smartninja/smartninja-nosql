@@ -265,10 +265,10 @@ class Model:
             if kwargs:
                 query_string = ""
                 for query_list in kwargs.values():
-                    if query_list[2] is False or query_list[2] is True:  # weird quirk in TinyDB
-                        query_string += "(Query().{0} {1} {2}) & ".format(query_list[0], query_list[1], query_list[2])
-                    else:
+                    if isinstance(query_list[2], str):
                         query_string += "(Query().{0} {1} '{2}') & ".format(query_list[0], query_list[1], query_list[2])
+                    else:
+                        query_string += "(Query().{0} {1} {2}) & ".format(query_list[0], query_list[1], query_list[2])
                 query_string = query_string[:-3]
                 dict_objects = collection.search(eval(query_string))
             else:
@@ -286,10 +286,10 @@ class Model:
             query_ref = "collection"
             if kwargs:
                 for query_list in kwargs.values():
-                    if query_list[2] is False or query_list[2] is True:  # weird quirk in TinyDB
-                        query_ref += ".where('{0}', '{1}', {2})".format(query_list[0], query_list[1], query_list[2])
-                    else:
+                    if isinstance(query_list[2], str):
                         query_ref += ".where('{0}', '{1}', '{2}')".format(query_list[0], query_list[1], query_list[2])
+                    else:
+                        query_ref += ".where('{0}', '{1}', {2})".format(query_list[0], query_list[1], query_list[2])
 
             print(query_ref)
 
@@ -310,9 +310,6 @@ class Model:
                 and_list = []
 
                 for query_list in kwargs.values():
-                    if isinstance(query_list[2], (int, float)):
-                        query_list[2] = str(query_list[2])
-
                     if len(kwargs) == 1:
                         if query_list[1] == ">":
                             query_filter = {query_list[0]: {"$gt": query_list[2]}}
