@@ -11,6 +11,7 @@ setup(
     packages=['tifico'],
     install_requires=[
         'tinydb==3.12.2',
+        'tinydb_serialization==1.0.4',
     ],
     version='0.1',
     license='MIT',
