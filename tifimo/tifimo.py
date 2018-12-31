@@ -1,13 +1,13 @@
 """
-Tifico is a simple ODM tool which helps you switch between three NoSQL database systems: TinyDB, Firestore and Cosmos
-DB (via MongoDB API). The name Tifico is made out of the first two letters of each of these databases (TInydb,
-FIrestore, COsmos).
+Tifimo is a simple ODM tool which helps you switch between four NoSQL database systems: TinyDB, Firestore, MongoDB and
+Cosmos DB (via MongoDB API). The name Tifimo is made out of the first two letters of these databases: TInydb,
+FIrestore, MOngo.
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos
 emulator on localhost.
 
-When you deploy your web app to Google Cloud or Azure, the ODM figures out the new environment (through env variables)
-and switches the database accordingly.
+When you deploy your web app to Google Cloud, Heroku or Azure, the ODM figures out the new environment (through env
+variables) and switches the database accordingly.
 
 Bear in mind that this is a simple ODM meant to be used at SmartNinja courses for learning purposes. So not all
 features of these NoSQL databases are covered, only the basic ones.
@@ -19,7 +19,6 @@ December 2018
 
 import os
 import logging
-
 
 # check where the app is currently hosted (GAE-Google App Engine, Localhost or Azure App Service)
 if os.environ.get("GAE_APPLICATION"):
@@ -41,6 +40,12 @@ elif os.environ.get("APPSETTING_WEBSITE_SITE_NAME"):
 
     from pymongo import MongoClient
     client = MongoClient(os.getenv("APPSETTING_MONGOURL"))  # this env var should be created automatically when you launch Cosmos DB (with MongoDB API) on Azure
+elif os.environ.get("DYNO"):
+    server_env = "heroku"
+    print("Platform: Heroku")
+
+    from pymongo import MongoClient
+    client = MongoClient(os.getenv("MONGODB_URI"))
 else:
     server_env = "localhost"
     print("Platform: localhost")
@@ -113,6 +118,10 @@ class Model:
             db.authenticate(name=os.getenv("APPSETTING_MONGO_USERNAME"),
                             password=os.getenv("APPSETTING_MONGO_PASSWORD"))
             collection = db[cls.__name__]
+        elif server_env == "heroku":
+            db_name = os.getenv("MONGODB_URI").split(":")[1].replace("//", "")  # get the username out, which is also the db name
+            db = client[db_name]
+            collection = db[cls.__name__]
 
         return collection
 
@@ -142,7 +151,7 @@ class Model:
             obj_dict["id"] = obj_doc.id
             obj = self.__init__(**obj_dict)  # convert from dict into object
 
-        elif server_env == "azure":
+        elif server_env == "azure" or server_env == "heroku":
             obj_id = collection.insert_one(self.__dict__).inserted_id
             obj = self.get(obj_id=str(obj_id))
 
@@ -166,7 +175,7 @@ class Model:
             collection.update(kwargs, doc_ids=[int(obj_id)])
         elif server_env == "gae":
             collection.document(obj_id).update(kwargs)
-        elif server_env == "azure":
+        elif server_env == "azure" or server_env == "heroku":
             from bson import ObjectId
             collection.update_one({"_id": ObjectId(obj_id)}, {"$set": kwargs})
 
@@ -187,7 +196,7 @@ class Model:
             collection.remove(doc_ids=[int(obj_id)])
         elif server_env == "gae":
             collection.document(obj_id).delete()
-        elif server_env == "azure":
+        elif server_env == "azure" or server_env == "heroku":
             from bson import ObjectId
             collection.delete_one({"_id": ObjectId(obj_id)})
 
@@ -218,7 +227,7 @@ class Model:
             obj_dict["id"] = obj_doc.id
             obj = cls(**obj_dict)  # convert from dict into object
 
-        elif server_env == "azure":
+        elif server_env == "azure" or server_env == "heroku":
             from bson import ObjectId
             obj_dict = collection.find_one({"_id": ObjectId(obj_id)})
             obj_dict["id"] = obj_id
@@ -304,7 +313,7 @@ class Model:
                 obj = cls(**obj_dict)  # convert from dict into object
                 objects.append(obj)
 
-        elif server_env == "azure":
+        elif server_env == "azure" or server_env == "heroku":
             if kwargs:
                 query_filter = {}
                 and_list = []

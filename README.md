@@ -1,51 +1,73 @@
-# Tifico ODM
+# Tifimo ODM
 
 ## About
 
-Tifico is a simple ODM tool which helps you **switch** between three NoSQL database systems: **TinyDB**, **Firestore** and **Cosmos DB** (via MongoDB API). The name Tifico is made out of the first two letters of each of these databases (**Ti**nydb, **Fi**restore, **Co**smos).
+Tifimo is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API). The name Tifimo is made out of the first two letters of each of these databases: **Ti**nydb, **Fi**restore, **Mo**ngo).
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos emulator on localhost.
 
-When you deploy your web app to Google Cloud or Azure, the ODM figures out the new environment (through env variables) and switches the database accordingly.
+When you deploy your web app to Google App Engine, Heroku or Azure App Service, the ODM figures out the new environment (through env variables) and switches the database accordingly.
 
 Bear in mind that this is a simple ODM meant to be used at the [SmartNinja courses](https://www.smartninja.org) for learning purposes. So not all
 features of these NoSQL databases are covered, only the basic ones.
 
 ## Installation
 
-Install Tifico via pip:
+Install Tifimo via pip:
 
-	pip install tifico
+	pip install tifimo
 
 Upgrade it like this:
 
-	pip install tifico --upgrade
+	pip install tifimo --upgrade
 
 And uninstall it like this:
 
-	pip uninstall tifico
+	pip uninstall tifimo
 
 ## Dependencies
 
-Tifico has two mandatory dependencies: `tinydb` and `tinydb_serialization`. These two help Tifico use a TinyDB database for localhost development.
+Tifimo has two mandatory dependencies: `tinydb` and `tinydb_serialization`. These two help Tifimo use a TinyDB database for localhost development.
 
-To use Firestore on Google App Engine or Cosmos DB on Azure App Service, you'll need to add the following libraries into your `requirements.txt` file:
+To use Firestore on Google App Engine, MongoDB on Heroku or Cosmos DB on Azure App Service, you'll need to add the following libraries into your `requirements.txt` file:
 
     firebase-admin
     google-cloud-firestore
     
     pymongo
 
-Note that `pymongo` is used as an API for the Cosmos DB database. If you won't use Azure, you don't need to include it. If you'll use Azure only, you can include only `pymongo` in the `requirements.txt` file (besides `tifico` of course).
+Note that `pymongo` is used as an API for the Cosmos DB database. If you won't use Azure, you don't need to include it. If you'll use Azure only, you can include only `pymongo` in the `requirements.txt` file (besides `tifimo` of course).
+
+### Heroku
+
+If you'll use MongoDB on Heroku, make sure to choose the **mLab MongoDB** add-on.
+
+### Environment variables
+
+The environment variables should already be automatically created, but still make sure they (still) have the correct names.
+
+Heroku:
+
+- **MONGODB_URI** (shows up when you add the mLab MongoDB add-on)
+- **DYNO** (standard Heroku env var, not visible on the dashboard)
+
+Azure:
+
+- **APPSETTING_WEBSITE_SITE_NAME** (env vars that start with "APPSETTING_" are Azure's standard env vars. Not visible on the dashboard)
+- **APPSETTING_MONGOURL** (shows up when you enable Cosmos DB with the Mongo API)
+
+Google Cloud:
+
+- **GAE_APPLICATION** (standard GAE env var)
 
 ## Usage
 
 ### Creating classes
 
-This is the simplest way to create classes that use Tifico:
+This is the simplest way to create classes that use Tifimo:
 
 ```python3
-from tifico.tifico import Model
+from tifimo.tifimo import Model
 
 
 class User(Model):
@@ -190,8 +212,8 @@ DB do).
 
 ## How the right database is determined
 
-Tifico automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 
-the selected database is **Firestore**. If Tifico finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is 
+Tifimo automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 
+the selected database is **Firestore**. If Tifimo finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is 
 **Azure**, so the selected database is **Cosmos DB**. But if **none** of these two environment variables is found, the 
 selected database is **TinyDB**.
 
