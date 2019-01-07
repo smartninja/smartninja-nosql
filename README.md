@@ -2,7 +2,7 @@
 
 ## About
 
-SmartNinja ODM is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API). The name SmartNinja ODM is made out of the first two letters of each of these databases: **Ti**nydb, **Fi**restore, **Mo**ngo).
+SmartNinja ODM is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API).
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos emulator on localhost.
 

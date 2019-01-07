@@ -1,7 +1,6 @@
 """
-Tifimo is a simple ODM tool which helps you switch between four NoSQL database systems: TinyDB, Firestore, MongoDB and
-Cosmos DB (via MongoDB API). The name Tifimo is made out of the first two letters of these databases: TInydb,
-FIrestore, MOngo.
+SmartNinja ODM is a simple ODM tool which helps you switch between four NoSQL database systems: TinyDB, Firestore, MongoDB and
+Cosmos DB (via MongoDB API).
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos
 emulator on localhost.
