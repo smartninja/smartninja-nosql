@@ -4,18 +4,18 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='tifimo',
-    url='https://github.com/smartninja/tifimo',
+    name='smartninja-odm',
+    url='https://github.com/smartninja/smartninja-odm',
     author='Matej Ramuta',
     author_email='matej.ramuta@gmail.com',
-    packages=['tifimo'],
+    packages=['smartninja_odm'],
     install_requires=[
         'tinydb==3.12.2',
         'tinydb_serialization==1.0.4',
     ],
-    version='0.3',
+    version='0.1',
     license='MIT',
-    description='Tifimo - a simple ODM for NoSQL databases: TinyDB, Firestore, MongoDB and Cosmos DB.',
+    description='SmartNinja ODM - a simple ODM for NoSQL databases: TinyDB, Firestore, MongoDB and Cosmos DB.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[

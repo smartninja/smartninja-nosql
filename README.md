@@ -1,8 +1,8 @@
-# Tifimo ODM
+# SmartNinja ODM
 
 ## About
 
-Tifimo is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API). The name Tifimo is made out of the first two letters of each of these databases: **Ti**nydb, **Fi**restore, **Mo**ngo).
+SmartNinja ODM is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API). The name SmartNinja ODM is made out of the first two letters of each of these databases: **Ti**nydb, **Fi**restore, **Mo**ngo).
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos emulator on localhost.
 
@@ -13,21 +13,21 @@ features of these NoSQL databases are covered, only the basic ones.
 
 ## Installation
 
-Install Tifimo via pip:
+Install SmartNinja ODM via pip:
 
-	pip install tifimo
+	pip install smartninja-odm
 
 Upgrade it like this:
 
-	pip install tifimo --upgrade
+	pip install smartninja-odm --upgrade
 
 And uninstall it like this:
 
-	pip uninstall tifimo
+	pip uninstall smartninja-odm
 
 ## Dependencies
 
-Tifimo has two mandatory dependencies: `tinydb` and `tinydb_serialization`. These two help Tifimo use a TinyDB database for localhost development.
+SmartNinja ODM has two mandatory dependencies: `tinydb` and `tinydb_serialization`. These two help SmartNinja ODM use a TinyDB database for localhost development.
 
 To use Firestore on Google App Engine, MongoDB on Heroku or Cosmos DB on Azure App Service, you'll need to add the following libraries into your `requirements.txt` file:
 
@@ -36,7 +36,7 @@ To use Firestore on Google App Engine, MongoDB on Heroku or Cosmos DB on Azure A
     
     pymongo
 
-Note that `pymongo` is used as an API for the Cosmos DB database. If you won't use Azure, you don't need to include it. If you'll use Azure only, you can include only `pymongo` in the `requirements.txt` file (besides `tifimo` of course).
+Note that `pymongo` is used as an API for the Cosmos DB database. If you won't use Azure, you don't need to include it. If you'll use Azure only, you can include only `pymongo` in the `requirements.txt` file (besides `smartninja-odm` of course).
 
 ### Heroku
 
@@ -64,10 +64,10 @@ Google Cloud:
 
 ### Creating classes
 
-This is the simplest way to create classes that use Tifimo:
+This is the simplest way to create classes that use SmartNinja ODM:
 
 ```python3
-from tifimo.tifimo import Model
+from smartninja_odm.odm import Model
 
 
 class User(Model):
@@ -212,8 +212,8 @@ DB do).
 
 ## How the right database is determined
 
-Tifimo automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 
-the selected database is **Firestore**. If Tifimo finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is 
+SmartNinja ODM automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 
+the selected database is **Firestore**. If SmartNinja ODM finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is 
 **Azure**, so the selected database is **Cosmos DB**. But if **none** of these two environment variables is found, the 
 selected database is **TinyDB**.
 
