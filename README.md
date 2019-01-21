@@ -4,7 +4,7 @@
 
 SmartNinja ODM is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API).
 
-TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos emulator on localhost.
+TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or MonogDB or Cosmos emulator on localhost.
 
 When you deploy your web app to Google App Engine, Heroku or Azure App Service, the ODM figures out the new environment (through env variables) and switches the database accordingly.
 
@@ -101,7 +101,7 @@ As you can see, `first_name`, `last_name` and `age` are mandatory fields, while 
 
 The `created` field is automatically assigned a value of `datetime.datetime.now()`.
 
-**Important**: The `super().__init__(**kwargs)` line must be the last one in the `__init__` method!
+**Important**: The `super().__init__(**kwargs)` line must be the last one in the `__init__` method! Also `**kwargs` must be added as a function parameter.
 
 ### Custom class methods
 
@@ -113,6 +113,7 @@ Your classes will inherit the following methods from the Model class:
 - `delete()`
 - `get()`
 - `fetch()`
+- `fetch_one()`
 
 But you can of course create your own custom methods. Example:
 
@@ -156,6 +157,20 @@ user.create()
 # Get the User object from the database
 new_obj = User.get(obj_id=user.id)
 
+```
+
+You can also find an object based on some other field using the `fetch_one()` method:
+
+```python3
+
+# search on one field
+one_user = User.fetch_one(query=["first_name", "==", "Matt"])
+
+# search on many fields
+query_age = ["age", ">", 30]
+query_human = ["human", "==", True]
+
+one_user = User.fetch_one(query_age=query_age, query_human=query_human)
 ```
 
 ### Edit an object

@@ -2,3 +2,5 @@ __pycache__
 *.pyc
 dist
 *.egg-info
+demo.py
+db.json

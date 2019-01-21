@@ -361,3 +361,12 @@ class Model:
                 objects.append(obj)
 
         return objects
+
+    @classmethod
+    def fetch_one(cls, **kwargs):
+        results = cls.fetch(**kwargs)
+
+        if results:
+            return results[0]
+        else:
+            return None
