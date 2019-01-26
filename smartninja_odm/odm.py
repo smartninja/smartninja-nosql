@@ -1,6 +1,6 @@
 """
-SmartNinja ODM is a simple ODM tool which helps you switch between four NoSQL database systems: TinyDB, Firestore, MongoDB and
-Cosmos DB (via MongoDB API).
+SmartNinja ODM is a simple ODM tool which helps you switch between four NoSQL database systems: TinyDB, Firestore,
+Datastore, MongoDB and Cosmos DB (via MongoDB API).
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos
 emulator on localhost.
@@ -24,15 +24,23 @@ if os.environ.get("GAE_APPLICATION"):
     server_env = "gae"
     print("Platform: GAE")
 
-    import firebase_admin
-    from firebase_admin import credentials
-    from firebase_admin import firestore
+    if os.getenv("GAE_DATABASE") == "datastore":
+        # the "GAE_DATABASE" env var must be set in app.yaml
+        from google.cloud import datastore
+        print("Datastore selected.")
+        gae_database = "datastore"
+    else:
+        import firebase_admin
+        from firebase_admin import credentials
+        from firebase_admin import firestore
+        print("Firestore selected.")
+        gae_database = "firestore"
 
-    cred = credentials.ApplicationDefault()
-    try:
-        firebase_admin.initialize_app(cred)
-    except Exception as e:
-        print("Firebase already initialized.")
+        cred = credentials.ApplicationDefault()
+        try:
+            firebase_admin.initialize_app(cred)
+        except Exception as e:
+            print("Firebase already initialized.")
 elif os.environ.get("APPSETTING_WEBSITE_SITE_NAME"):
     server_env = "azure"
     logging.warning("Platform: Azure")  # only the warning logs (and above) are visible on Azure
@@ -108,8 +116,12 @@ class Model:
             db = TinyDB('db.json', storage=serialization)
             collection = db.table(cls.__name__)
         elif server_env == "gae":
-            db = firestore.client()
-            collection = db.collection(cls.__name__)
+            if gae_database == "datastore":
+                db = datastore.Client()
+                return db  # no collections in the Datastore
+            else:
+                db = firestore.client()
+                collection = db.collection(cls.__name__)
         elif server_env == "azure":
             db = client["my-database"]
             # these two env vars should be created automatically when you launch Cosmos DB (with MongoDB API) on Azure
@@ -127,7 +139,7 @@ class Model:
     def create(self):
         """
         Create a new document and put it in a collection.
-        :return: document object
+        :return: document id
 
         Example:
 
@@ -136,25 +148,29 @@ class Model:
 
         """
         collection = self.get_collection()
-        obj = None
+        obj_id = None
 
         if server_env == "localhost":
             obj_id = collection.insert(self.__dict__)
-            obj = self.get(obj_id=obj_id)
 
         elif server_env == "gae":
-            obj_ref = collection.document()
-            obj_ref.set(self.__dict__)
-            obj_doc = obj_ref.get()
-            obj_dict = obj_doc.to_dict()
-            obj_dict["id"] = obj_doc.id
-            obj = self.__init__(**obj_dict)  # convert from dict into object
+            if gae_database == "datastore":
+                entity = datastore.Entity(key=collection.key(self.__class__.__name__))
+                entity.update(self.__dict__)
+                collection.put(entity)
+
+                obj_id = entity.key.id
+            else:
+                obj_ref = collection.document()
+                obj_ref.set(self.__dict__)
+                obj_doc = obj_ref.get()
+
+                obj_id = obj_doc.id
 
         elif server_env == "azure" or server_env == "heroku":
             obj_id = collection.insert_one(self.__dict__).inserted_id
-            obj = self.get(obj_id=str(obj_id))
 
-        return obj
+        return obj_id
 
     @classmethod
     def edit(cls, obj_id, **kwargs):
@@ -173,7 +189,16 @@ class Model:
         if server_env == "localhost":
             collection.update(kwargs, doc_ids=[int(obj_id)])
         elif server_env == "gae":
-            collection.document(obj_id).update(kwargs)
+            if gae_database == "datastore":
+                key = collection.key(cls.__name__, obj_id)
+                obj = collection.get(key=key)
+
+                for key, value in kwargs.items():
+                    obj[key] = value
+
+                collection.put(obj)
+            else:
+                collection.document(obj_id).update(kwargs)
         elif server_env == "azure" or server_env == "heroku":
             from bson import ObjectId
             collection.update_one({"_id": ObjectId(obj_id)}, {"$set": kwargs})
@@ -194,7 +219,11 @@ class Model:
         if server_env == "localhost":
             collection.remove(doc_ids=[int(obj_id)])
         elif server_env == "gae":
-            collection.document(obj_id).delete()
+            if gae_database == "datastore":
+                key = collection.key(cls.__name__, obj_id)
+                collection.delete(key=key)
+            else:
+                collection.document(obj_id).delete()
         elif server_env == "azure" or server_env == "heroku":
             from bson import ObjectId
             collection.delete_one({"_id": ObjectId(obj_id)})
@@ -217,14 +246,18 @@ class Model:
             obj_id = int(obj_id)
             obj_dict = collection.get(doc_id=obj_id)
             obj_dict["id"] = obj_id  # add ID to the dict before converting it into an object
-            print(obj_dict)
             obj = cls(**obj_dict)
 
         elif server_env == "gae":
-            obj_doc = collection.document(obj_id).get()
-            obj_dict = obj_doc.to_dict()
-            obj_dict["id"] = obj_doc.id
-            obj = cls(**obj_dict)  # convert from dict into object
+            if gae_database == "datastore":
+                key = collection.key(cls.__name__, obj_id)
+                entity = collection.get(key=key)
+                obj = cls(id=entity.key.id, **entity)  # convert datastore entity into an object based on our model
+            else:
+                obj_doc = collection.document(obj_id).get()
+                obj_dict = obj_doc.to_dict()
+                obj_dict["id"] = obj_doc.id
+                obj = cls(**obj_dict)  # convert from dict into object
 
         elif server_env == "azure" or server_env == "heroku":
             from bson import ObjectId
@@ -291,26 +324,42 @@ class Model:
                 objects.append(obj)
 
         elif server_env == "gae":
-            query_ref = "collection"
-            if kwargs:
-                for query_list in kwargs.values():
-                    if isinstance(query_list[2], str):
-                        query_ref += ".where('{0}', '{1}', '{2}')".format(query_list[0], query_list[1], query_list[2])
-                    else:
-                        query_ref += ".where('{0}', '{1}', {2})".format(query_list[0], query_list[1], query_list[2])
+            if gae_database == "datastore":
+                query = collection.query(kind=cls.__name__)
+                if kwargs:
+                    for query_list in kwargs.values():
+                        if query_list[1] == "==":
+                            query_list[1] = "="  # double equals are not allowed in datastore queries
 
-            print(query_ref)
+                        query.add_filter(query_list[0], query_list[1], query_list[2])
 
-            if limit:
-                doc_objects = eval(query_ref).limit(limit).get()
+                if limit:
+                    entity_objects = query.fetch(limit=limit)
+                else:
+                    entity_objects = query.fetch()
+
+                for entity in entity_objects:
+                    obj = cls(id=entity.key.id, **entity)  # convert datastore entities into objects based on our model
+                    objects.append(obj)
             else:
-                doc_objects = eval(query_ref).get()
+                query_ref = "collection"
+                if kwargs:
+                    for query_list in kwargs.values():
+                        if isinstance(query_list[2], str):
+                            query_ref += ".where('{0}', '{1}', '{2}')".format(query_list[0], query_list[1], query_list[2])
+                        else:
+                            query_ref += ".where('{0}', '{1}', {2})".format(query_list[0], query_list[1], query_list[2])
 
-            for obj_doc in doc_objects:
-                obj_dict = obj_doc.to_dict()
-                obj_dict["id"] = obj_doc.id  # add ID to the dict before converting it into an object
-                obj = cls(**obj_dict)  # convert from dict into object
-                objects.append(obj)
+                if limit:
+                    doc_objects = eval(query_ref).limit(limit).get()
+                else:
+                    doc_objects = eval(query_ref).get()
+
+                for obj_doc in doc_objects:
+                    obj_dict = obj_doc.to_dict()
+                    obj_dict["id"] = obj_doc.id  # add ID to the dict before converting it into an object
+                    obj = cls(**obj_dict)  # convert from dict into object
+                    objects.append(obj)
 
         elif server_env == "azure" or server_env == "heroku":
             if kwargs:

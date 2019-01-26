@@ -2,9 +2,9 @@
 
 ## About
 
-SmartNinja ODM is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API).
+SmartNinja ODM is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Datastore**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API).
 
-TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or MonogDB or Cosmos emulator on localhost.
+TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore, Datastore, MonogDB or Cosmos emulator on localhost.
 
 When you deploy your web app to Google App Engine, Heroku or Azure App Service, the ODM figures out the new environment (through env variables) and switches the database accordingly.
 
@@ -13,30 +13,35 @@ features of these NoSQL databases are covered, only the basic ones.
 
 ## Installation
 
-Install SmartNinja ODM via pip:
+Add this dependency in your `requirements.txt`:
 
-	pip install smartninja-odm
+	smartninja-odm
 
-Upgrade it like this:
+Make sure to install it locally using this command:
 
-	pip install smartninja-odm --upgrade
+	pip install -r requirements.txt
 
-And uninstall it like this:
-
-	pip uninstall smartninja-odm
-
-## Dependencies
+## Other dependencies
 
 SmartNinja ODM has two mandatory dependencies: `tinydb` and `tinydb_serialization`. These two help SmartNinja ODM use a TinyDB database for localhost development.
 
-To use Firestore on Google App Engine, MongoDB on Heroku or Cosmos DB on Azure App Service, you'll need to add the following libraries into your `requirements.txt` file:
+#### Datastore
 
-    firebase-admin
+Google Cloud Datastore dependency in `requirements.txt`:
+
+    google-cloud-datastore
+
+#### Firestore
+
+Google Cloud Firestore dependency in `requirements.txt`:
+
     google-cloud-firestore
-    
-    pymongo
 
-Note that `pymongo` is used as an API for the Cosmos DB database. If you won't use Azure, you don't need to include it. If you'll use Azure only, you can include only `pymongo` in the `requirements.txt` file (besides `smartninja-odm` of course).
+#### MongoDB & Cosmos DB
+
+To use MongoDB on Heroku or Cosmos DB on Azure App Service, you'll need to add the following library in your `requirements.txt` file:
+
+    pymongo
 
 ### Heroku
 
@@ -59,6 +64,15 @@ Azure:
 Google Cloud:
 
 - **GAE_APPLICATION** (standard GAE env var)
+
+#### Important: Datastore environment variable
+
+If you'd like to use Datastore on GAE, you must add this piece of code into your `app.yaml` file:
+
+	env_variables:
+	  GAE_DATABASE: "datastore"
+
+If you'd like to use Firestore instead, enter "firestore" or don't have this env. variable at all (Firestore is default).
 
 ## Usage
 
@@ -143,7 +157,7 @@ user.create()
 
 As you can see, creating an object needs two things: initializing an object and saving it into a database with the `create()` method. If you don't call this method, the object will not be saved into a database.
 
-The `create()` method returns back an object with all its properties, including the `id` which is **automatically** created by the database.
+The `create()` method returns back the **object ID**, which is **automatically** created by the database.
 
 ### Get one object from the database
 
@@ -152,10 +166,10 @@ You can get an object out of the database if you know its `id`:
 ```python3
 # Add new object to the database:
 user = User(first_name="Matt", last_name="Ramuta", age=31)
-user.create()
+user_id = user.create()
 
 # Get the User object from the database
-new_obj = User.get(obj_id=user.id)
+new_obj = User.get(obj_id=user_id)
 
 ```
 
@@ -228,8 +242,9 @@ DB do).
 ## How the right database is determined
 
 SmartNinja ODM automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 
-the selected database is **Firestore**. If SmartNinja ODM finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is 
-**Azure**, so the selected database is **Cosmos DB**. But if **none** of these two environment variables is found, the 
+the selected database is **Firestore** (unless you added the `GAE_DATABASE: "datastore"` environment variable in `app.yaml`). 
+
+If SmartNinja ODM finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is **Azure**, so the selected database is **Cosmos DB**. But if **none** of these two environment variables is found, the 
 selected database is **TinyDB**.
 
 ## TODO
