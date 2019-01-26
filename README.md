@@ -153,11 +153,13 @@ class User(Model):
 user = User(first_name="Matt", last_name="Ramuta", age=31)
 user.create()
 
+print(user.id)
+
 ```
 
 As you can see, creating an object needs two things: initializing an object and saving it into a database with the `create()` method. If you don't call this method, the object will not be saved into a database.
 
-The `create()` method returns back the **object ID**, which is **automatically** created by the database.
+The `create()` method returns back the **object ID**, which is **automatically** created by the database. The ID is also stored in the object itself.
 
 ### Get one object from the database
 

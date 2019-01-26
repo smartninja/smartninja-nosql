@@ -170,6 +170,7 @@ class Model:
         elif server_env == "azure" or server_env == "heroku":
             obj_id = collection.insert_one(self.__dict__).inserted_id
 
+        self.id = obj_id  # save the ID back in the object
         return obj_id
 
     @classmethod
