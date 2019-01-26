@@ -3,4 +3,4 @@ __pycache__
 dist
 *.egg-info
 demo.py
-db.json
+*.json

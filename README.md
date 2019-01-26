@@ -251,3 +251,5 @@ selected database is **TinyDB**.
 
 - Tests
 - Continuous integration
+- "order" support
+- automatic composite index generator for Cloud Datastore (index.yaml)

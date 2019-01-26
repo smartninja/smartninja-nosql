@@ -13,9 +13,9 @@ setuptools.setup(
         'tinydb==3.12.2',
         'tinydb_serialization==1.0.4',
     ],
-    version='0.2',
+    version='0.3',
     license='MIT',
-    description='SmartNinja ODM - a simple ODM for NoSQL databases: TinyDB, Firestore, MongoDB and Cosmos DB.',
+    description='SmartNinja ODM - a simple ODM for NoSQL databases: TinyDB, Firestore, Datastore, MongoDB and Cosmos DB.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
