@@ -241,6 +241,15 @@ the **operator** must be written in quotes.
 - The "not equal" queries ("!=") are not allowed, because Firestore does not support them (although TinyDB and Cosmos 
 DB do).
 
+## Enable a TinyDB test database (for localhost testing)
+
+Create an environment variable named `TESTING`:
+
+	import os
+	os.environ["TESTING"] = "1"
+
+This will create a test TinyDB database: `test_db.json`.
+
 ## How the right database is determined
 
 SmartNinja ODM automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 

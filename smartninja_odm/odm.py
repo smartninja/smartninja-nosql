@@ -113,7 +113,11 @@ class Model:
             serialization = SerializationMiddleware()
             serialization.register_serializer(DateTimeSerializer(), 'TinyDate')
 
-            db = TinyDB('db.json', storage=serialization)
+            tiny_db_name = 'db.json'
+            if os.getenv("TESTING"):
+                tiny_db_name = 'test_db.json'
+
+            db = TinyDB(tiny_db_name, storage=serialization)
             collection = db.table(cls.__name__)
         elif server_env == "gae":
             if gae_database == "datastore":
