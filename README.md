@@ -1,8 +1,8 @@
-# SmartNinja ODM
+# SmartNinja NoSQL
 
 ## About
 
-SmartNinja ODM is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Datastore**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API).
+SmartNinja NoSQL is a simple ODM tool which helps you **switch** between these NoSQL database systems: **TinyDB**, **Datastore**, **Firestore**, **MongoDB** and **Cosmos DB** (via MongoDB API).
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore, Datastore, MonogDB or Cosmos emulator on localhost.
 
@@ -15,7 +15,7 @@ features of these NoSQL databases are covered, only the basic ones.
 
 Add this dependency in your `requirements.txt`:
 
-	smartninja-odm
+	smartninja-nosql
 
 Make sure to install it locally using this command:
 
@@ -23,7 +23,7 @@ Make sure to install it locally using this command:
 
 ## Other dependencies
 
-SmartNinja ODM has two mandatory dependencies: `tinydb` and `tinydb_serialization`. These two help SmartNinja ODM use a TinyDB database for localhost development.
+SmartNinja NoSQL has two mandatory dependencies: `tinydb` and `tinydb_serialization`. These two help SmartNinja NoSQL use a TinyDB database for localhost development.
 
 #### Datastore
 
@@ -78,10 +78,10 @@ If you'd like to use Firestore instead, enter "firestore" or don't have this env
 
 ### Creating classes
 
-This is the simplest way to create classes that use SmartNinja ODM:
+This is the simplest way to create classes that use SmartNinja NoSQL:
 
 ```python3
-from smartninja_odm.odm import Model
+from smartninja_nosql.odm import Model
 
 
 class User(Model):
@@ -252,10 +252,10 @@ This will create a test TinyDB database: `test_db.json`.
 
 ## How the right database is determined
 
-SmartNinja ODM automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 
+SmartNinja NoSQL automatically determines which database to use. If the environment has the `GAE_APPLICATION` variable, then 
 the selected database is **Firestore** (unless you added the `GAE_DATABASE: "datastore"` environment variable in `app.yaml`). 
 
-If SmartNinja ODM finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is **Azure**, so the selected database is **Cosmos DB**. But if **none** of these two environment variables is found, the 
+If SmartNinja NoSQL finds a `APPSETTING_WEBSITE_SITE_NAME` it assumes the environment is **Azure**, so the selected database is **Cosmos DB**. But if **none** of these two environment variables is found, the 
 selected database is **TinyDB**.
 
 ## TODO

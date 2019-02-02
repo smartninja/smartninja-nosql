@@ -1,5 +1,5 @@
 """
-SmartNinja ODM is a simple ODM tool which helps you switch between four NoSQL database systems: TinyDB, Firestore,
+SmartNinja NoSQL is a simple ODM tool which helps you switch between four NoSQL database systems: TinyDB, Firestore,
 Datastore, MongoDB and Cosmos DB (via MongoDB API).
 
 TinyDB is used for localhost development. The advantage is that it saves you time configuring a Firestore or Cosmos
